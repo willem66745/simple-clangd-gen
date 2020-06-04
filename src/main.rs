@@ -179,15 +179,13 @@ impl Branch {
                         new = file_path.clone();
                         new.pop();
                     }
-                    let error_path = new.clone(); // just to produce a better error message (if any)
                     new.push(&path);
-                    *path = new.canonicalize().with_context(|| {
-                        format!(
-                            "unable to resolve '{}' from '{}'",
-                            path.display(),
-                            error_path.display()
-                        )
-                    })?;
+
+                    // when path cannot be resolved, just leave the configured path without
+                    // modification
+                    if let Ok(resolved_path) = new.canonicalize() {
+                        *path = resolved_path;
+                    }
                 }
             }
 
